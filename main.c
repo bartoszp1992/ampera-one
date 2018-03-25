@@ -66,7 +66,7 @@ int main(void) {
 	int duty = 0;
 
 	//modes
-	int mode = 1;
+	int mode = 3;
 	int kers = 0;
 
 	//kers
@@ -219,15 +219,12 @@ int main(void) {
 			OCR1A = duty;
 		}
 
-		/*lcd_goto(throttleDisplay);
-		itoa(throttle, buffer, 10);
-		lcd_puts(buffer);*/
 
 		counter++;
 		if(counter >32000) counter = 1;
 
 
-		if((counter % 1000) == 0){
+		if((counter % 200) == 0){
 			//display voltage
 					if(voltage >= 10){
 						lcd_goto(voltageDisplay);
