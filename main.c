@@ -6,7 +6,7 @@
  *     	Ampera ONE
  *
  *      initial pre-alpha release
- *      v0.4 - added modes
+ *      v0.6 - added lights
  *
  */
 
@@ -33,6 +33,10 @@ int main(void) {
 	//button
 	DDRB &= ~(1<<PB4);
 	PORTB |= (1<<PB4);
+
+	//lights
+	DDRC |= (1<<PC4);
+	PORTC &= ~(1<<PC4);
 
 
 	//hardware PWM define
@@ -110,30 +114,38 @@ int main(void) {
 		//_delay_ms(200);
 
 		//mode select
-		if(mode <= 2 && !(PINB & (1<<PB4))){
-			mode++;
+		if(!(PINB & (1<<PB4))){
 			_delay_ms(200);
-		}
 
-		if(mode > 2 && !(PINB & (1<<PB4))){
-			mode = 1;
-			_delay_ms(200);
+			if(PINB & (1<<PB4)){
+				PORTC ^= (1<<PC4);
+			}
+
+			if(mode <= 2 && !(PINB & (1<<PB4))){
+				mode++;
+				_delay_ms(800);
+			}
+
+			if(mode > 2 && !(PINB & (1<<PB4))){
+				mode = 1;
+				_delay_ms(800);
+			}
 		}
 
 		//mode
 		if (mode == 1) {
 			lcd_goto(modeDisplay);
-			lcd_puts("eco");
+			lcd_puts("eco  ");
 		}
 
 		if (mode == 2) {
 					lcd_goto(modeDisplay);
-					lcd_puts("mid");
+					lcd_puts("smart");
 				}
 
 		if (mode == 3) {
 					lcd_goto(modeDisplay);
-					lcd_puts("pro");
+					lcd_puts("sport");
 				}
 
 		//battery
@@ -188,35 +200,61 @@ int main(void) {
 		} else {
 			kers = 0;
 			OCR1B = 0;
-			if (throttle >= 200)
+			if (voltage > 14 && throttle >= 200)
 				duty = 11;
-			if (throttle >= 250)
+			if (voltage > 14 && throttle >= 250)
 				duty = 12;
-			if (throttle >= 300)
+			if (voltage > 14 && throttle >= 300)
 				duty = 13;
-			if (throttle >= 350)
+			if (voltage > 14 && throttle >= 350)
 				duty = 14;
-			if (throttle >= 400)
+			if (voltage > 14 && throttle >= 400)
 				duty = 15;
-			if (throttle >= 450)
+			if (voltage > 14 && throttle >= 450)
 				duty = 16;
-			if (throttle >= 500 && mode > 1) //mid
+			if (voltage > 14 && throttle >= 500 && mode > 1) //mid
 				duty = 17;
-			if (throttle >= 550 && mode > 1)
+			if (voltage > 14 && throttle >= 550 && mode > 1)
 				duty = 18;
-			if (throttle >= 600 && mode > 1)
+			if (voltage > 14 && throttle >= 600 && mode > 1)
 				duty = 19;
-			if (throttle >= 650 && mode > 1)
+			if (voltage > 14 && throttle >= 650 && mode > 1)
 				duty = 20;
-			if (throttle >= 700 && mode > 2) //pro
+			if (voltage > 14 && throttle >= 700 && mode > 2) //pro
 				duty = 21;
-			if (throttle >= 750 && mode > 2)
+			if (voltage > 14 && throttle >= 750 && mode > 2)
 				duty = 22;
-			if (throttle >= 800 && mode > 2)
+			if (voltage > 14 && throttle >= 800 && mode > 2)
 				duty = 23;
-			if (throttle >= 820 && mode > 2)
+			if (voltage > 14 && throttle >= 820 && mode > 2)
 				duty = 24;
 			OCR1A = duty;
+
+			ADMUX |= (1 << MUX1);		//ADC3(battery)
+			ADMUX |= (1 << MUX0);
+			ADCSRA |= (1 << ADSC); //start
+			while (ADCSRA & (1 << ADSC))
+				;
+			voltage = ADC / 18.2;
+
+					while(voltage <= 14 && throttle > 200){
+						OCR1A = duty - 1;
+						ADMUX |= (1 << MUX1);		//ADC3(battery)
+						ADMUX |= (1 << MUX0);
+						ADCSRA |= (1 << ADSC); //start
+						while (ADCSRA & (1 << ADSC))
+						;
+						voltage = ADC / 18.2;
+
+
+						ADMUX |= (1 << MUX1);		//ADC2(throttle)
+						ADMUX &= ~(1 << MUX0);
+						ADCSRA |= (1 << ADSC); //start
+						while (ADCSRA & (1 << ADSC))
+							;
+						throttle = ADC;
+					}
+
 		}
 
 
@@ -224,7 +262,7 @@ int main(void) {
 		if(counter >32000) counter = 1;
 
 
-		if((counter % 200) == 0){
+		if((counter % 80) == 0){
 			//display voltage
 					if(voltage >= 10){
 						lcd_goto(voltageDisplay);
