@@ -80,6 +80,7 @@ int main(void) {
 	float voltage;
 	float kersVoltage;
 	float difference;
+	float minVoltage = 13;
 
 	//lcd
 	int modeDisplay = 0;
@@ -200,33 +201,33 @@ int main(void) {
 		} else {
 			kers = 0;
 			OCR1B = 0;
-			if (voltage > 14 && throttle >= 200)
+			if (voltage > minVoltage && throttle >= 200)
 				duty = 11;
-			if (voltage > 14 && throttle >= 250)
+			if (voltage > minVoltage && throttle >= 250)
 				duty = 12;
-			if (voltage > 14 && throttle >= 300)
+			if (voltage > minVoltage && throttle >= 300)
 				duty = 13;
-			if (voltage > 14 && throttle >= 350)
+			if (voltage > minVoltage && throttle >= 350)
 				duty = 14;
-			if (voltage > 14 && throttle >= 400)
+			if (voltage > minVoltage && throttle >= 400)
 				duty = 15;
-			if (voltage > 14 && throttle >= 450)
+			if (voltage > minVoltage && throttle >= 450)
 				duty = 16;
-			if (voltage > 14 && throttle >= 500 && mode > 1) //mid
+			if (voltage > minVoltage && throttle >= 500 && mode > 1) //mid
 				duty = 17;
-			if (voltage > 14 && throttle >= 550 && mode > 1)
+			if (voltage > minVoltage && throttle >= 550 && mode > 1)
 				duty = 18;
-			if (voltage > 14 && throttle >= 600 && mode > 1)
+			if (voltage > minVoltage && throttle >= 600 && mode > 1)
 				duty = 19;
-			if (voltage > 14 && throttle >= 650 && mode > 1)
+			if (voltage > minVoltage && throttle >= 650 && mode > 1)
 				duty = 20;
-			if (voltage > 14 && throttle >= 700 && mode > 2) //pro
+			if (voltage > minVoltage && throttle >= 700 && mode > 2) //pro
 				duty = 21;
-			if (voltage > 14 && throttle >= 750 && mode > 2)
+			if (voltage > minVoltage && throttle >= 750 && mode > 2)
 				duty = 22;
-			if (voltage > 14 && throttle >= 800 && mode > 2)
+			if (voltage > minVoltage && throttle >= 800 && mode > 2)
 				duty = 23;
-			if (voltage > 14 && throttle >= 820 && mode > 2)
+			if (voltage > minVoltage && throttle >= 820 && mode > 2)
 				duty = 24;
 			OCR1A = duty;
 
@@ -237,7 +238,7 @@ int main(void) {
 				;
 			voltage = ADC / 18.2;
 
-					while(voltage <= 14 && throttle > 200){
+					while(voltage <= minVoltage && throttle > 200){
 						OCR1A = duty - 1;
 						ADMUX |= (1 << MUX1);		//ADC3(battery)
 						ADMUX |= (1 << MUX0);
